@@ -11,10 +11,18 @@ export default class Slide {
 
     init() {
         this.bindEvents();
+        this.transition(true);
         this.addSlideEvents();
         this.slidesConfig();
 
+        this.changeSlide(this.slideArray.length / 2);
+        this.activePrevSlide();
+
         return this;
+    }
+
+    transition(active) {
+        this.slide.style.transition = active ? 'transform 0.3s' : '';
     }
 
     moveSlide(distanceX) {
@@ -42,6 +50,7 @@ export default class Slide {
         }
         
         this.wrapper.addEventListener(moveType, this.move);
+        this.transition(false);
     }
 
     move(event) {
@@ -68,6 +77,18 @@ export default class Slide {
 
         this.wrapper.removeEventListener(moveType, this.move);
         this.distance.finalPosition = this.distance.movePosition;
+        this.transition(true);
+        this.changeSlideOnEnd();
+    }
+
+    changeSlideOnEnd() {
+        if (this.distance.movement > 120 && this.index.next !== undefined) {
+            this.activeNextSlide();
+        } else if (this.distance.movement < -120 && this.index.prev !== undefined) {
+            this.activePrevSlide();
+        } else {
+            this.changeSlide(this.index.active);
+        }
     }
 
     addSlideEvents() {
@@ -116,5 +137,17 @@ export default class Slide {
         this.moveSlide(this.slideArray[index].position);
         this.slideIndexNav(index);
         this.distance.finalPosition = activeSlide.position;
+    }
+
+    activePrevSlide() {
+        if (this.index.prev !== undefined) {
+            this.changeSlide(this.index.prev);
+        }
+    }
+
+    activeNextSlide() {
+        if (this.index.next !== undefined) {
+            this.changeSlide(this.index.next);
+        }
     }
 }
