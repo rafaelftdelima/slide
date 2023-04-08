@@ -28,25 +28,52 @@ export default class Slide {
     }
 
     start(event) {
-        event.preventDefault();
+        let moveType;
 
-        this.distance.startX = event.clientX;
-        this.wrapper.addEventListener('mousemove', this.move);
+        if (event.type === 'mousedown') {
+            event.preventDefault();
+
+            this.distance.startX = event.clientX;
+            moveType = 'mousemove';
+        } else {
+            this.distance.startX = event.changedTouches[0].clientX;
+            moveType = 'touchmove';
+        }
+        
+        this.wrapper.addEventListener(moveType, this.move);
     }
 
     move(event) {
-        const finalPosition = this.updatePosition(event.clientX);
+        let pointerPosition;
+
+        if (event.type === 'mousemove') {
+            pointerPosition = event.clientX;
+        } else {
+            pointerPosition = event.changedTouches[0].clientX;
+        }
+
+        const finalPosition = this.updatePosition(pointerPosition);
         this.moveSlide(finalPosition);
     }
 
     end(event) {
-        this.wrapper.removeEventListener('mousemove', this.move);
+        let moveType;
+
+        if (event.type === 'mouseup') {
+            moveType = 'mousemove';
+        } else {
+            moveType = 'touchmove';
+        }
+
+        this.wrapper.removeEventListener(moveType, this.move);
         this.distance.finalPosition = this.distance.movePosition;
     }
 
     addSlideEvents() {
         this.wrapper.addEventListener('mousedown', this.start);
+        this.wrapper.addEventListener('touchstart', this.start);
         this.wrapper.addEventListener('mouseup', this.end);
+        this.wrapper.addEventListener('touchend', this.end);
     }
 
     bindEvents() {
